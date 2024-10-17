@@ -21,5 +21,5 @@ else()
     list(APPEND CMAKE_PREFIX_PATH ${EXTRACT_DIR})
 
     # Find a specific library in the extracted folder
-    find_library(ONNXRUNTIME_LIB onnxruntime NAMES onnxruntime.dll onnxruntime.so PATHS ${EXTRACT_DIR} NO_DEFAULT_PATH REQUIRED)
+    find_library(ONNXRUNTIME_LIB onnxruntime NAMES onnxruntime.dll onnxruntime.so PATHS ${EXTRACT_DIR} PATH_SUFFIXES lib include NO_DEFAULT_PATH REQUIRED)
 endif()
