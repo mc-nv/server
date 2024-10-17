@@ -36,12 +36,12 @@ function(message_func)
   message("TESTH: ${TESTH}")
 endfunction()
 
-find_library(ONNXRUNTIME onnxruntime)
+find_library(ONNXRUNTIME_LIB onnxruntime)
 
-if(NOT ${ONNXRUNTIME})
+if(NOT ${ONNXRUNTIME_LIB})
 # Download onnxruntime
   include(download_onnxruntime.cmake)
-endif(NOT ${ONNXRUNTIME})
+endif(NOT ${ONNXRUNTIME_LIB})
 message_func()
 
 add_executable(server server.cpp)
