@@ -363,7 +363,13 @@ function kill_server () {
     else
         # Non-windows...
         kill $SERVER_PID
-        wait $SERVER_PID
+        # On Jetson, Triton may exit non-zero during graceful shutdown after
+        # Python backend stub teardown even when tests passed.
+        if [ "${TEST_JETSON}" == "1" ]; then
+            wait $SERVER_PID || true
+        else
+            wait $SERVER_PID
+        fi
     fi
 }
 
