@@ -367,6 +367,16 @@ function kill_server () {
         # Python backend stub teardown even when tests passed.
         if [ "${TEST_JETSON}" == "1" ]; then
             wait $SERVER_PID || true
+            if [ -n "${TRITON_PYTHON_SHM_SNAPSHOT}" ] \
+                && [ -f "${TRITON_PYTHON_SHM_SNAPSHOT}" ]; then
+                local region
+                for region in /dev/shm/triton_python_backend_shm_region_*; do
+                    [ -e "${region}" ] || continue
+                    if ! grep -qx "${region}" "${TRITON_PYTHON_SHM_SNAPSHOT}"; then
+                        rm -f "${region}" 2>/dev/null || true
+                    fi
+                done
+            fi
         else
             wait $SERVER_PID
         fi

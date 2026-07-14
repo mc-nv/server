@@ -30,6 +30,35 @@ get_shm_pages() {
   echo ${#shm_pages[@]}
 }
 
+TRITON_PYTHON_SHM_SNAPSHOT=""
+
+snapshot_triton_python_shm() {
+  TRITON_PYTHON_SHM_SNAPSHOT="$(mktemp)"
+  ls /dev/shm/triton_python_backend_shm_region_* 2>/dev/null \
+      | sort > "${TRITON_PYTHON_SHM_SNAPSHOT}" || true
+}
+
+cleanup_triton_python_shm_since_snapshot() {
+  if [ "${TEST_JETSON}" != "1" ] || [ -z "${TRITON_PYTHON_SHM_SNAPSHOT}" ] \
+      || [ ! -f "${TRITON_PYTHON_SHM_SNAPSHOT}" ]; then
+    return 0
+  fi
+  local region
+  for region in /dev/shm/triton_python_backend_shm_region_*; do
+    [ -e "${region}" ] || continue
+    if ! grep -qx "${region}" "${TRITON_PYTHON_SHM_SNAPSHOT}"; then
+      rm -f "${region}" 2>/dev/null || true
+    fi
+  done
+}
+
+clear_triton_python_shm_snapshot() {
+  if [ -n "${TRITON_PYTHON_SHM_SNAPSHOT}" ]; then
+    rm -f "${TRITON_PYTHON_SHM_SNAPSHOT}"
+    TRITON_PYTHON_SHM_SNAPSHOT=""
+  fi
+}
+
 install_conda() {
   rm -rf ./miniconda
   file_name="Miniconda3-py312_24.9.2-0-Linux-x86_64.sh"
