@@ -323,6 +323,35 @@ function run_server_leakcheck () {
     fi
 }
 
+TRITON_PYTHON_SHM_SNAPSHOT=""
+
+function snapshot_triton_python_shm () {
+    TRITON_PYTHON_SHM_SNAPSHOT="$(mktemp)"
+    ls /dev/shm/triton_python_backend_shm_region_* 2>/dev/null \
+        | sort > "${TRITON_PYTHON_SHM_SNAPSHOT}" || true
+}
+
+function cleanup_triton_python_shm_since_snapshot () {
+    if [ -z "${TRITON_PYTHON_SHM_SNAPSHOT}" ] \
+        || [ ! -f "${TRITON_PYTHON_SHM_SNAPSHOT}" ]; then
+        return 0
+    fi
+    local region
+    for region in /dev/shm/triton_python_backend_shm_region_*; do
+        [ -e "${region}" ] || continue
+        if ! grep -qx "${region}" "${TRITON_PYTHON_SHM_SNAPSHOT}"; then
+            rm -f "${region}" 2>/dev/null || true
+        fi
+    done
+}
+
+function clear_triton_python_shm_snapshot () {
+    if [ -n "${TRITON_PYTHON_SHM_SNAPSHOT}" ]; then
+        rm -f "${TRITON_PYTHON_SHM_SNAPSHOT}"
+        TRITON_PYTHON_SHM_SNAPSHOT=""
+    fi
+}
+
 # Kill inference server. SERVER_PID must be set to the server's pid.
 function kill_server () {
     # Under WSL the linux PID is not the same as the windows PID and
@@ -367,16 +396,7 @@ function kill_server () {
         # Python backend stub teardown even when tests passed.
         if [ "${TEST_JETSON}" == "1" ]; then
             wait $SERVER_PID || true
-            if [ -n "${TRITON_PYTHON_SHM_SNAPSHOT}" ] \
-                && [ -f "${TRITON_PYTHON_SHM_SNAPSHOT}" ]; then
-                local region
-                for region in /dev/shm/triton_python_backend_shm_region_*; do
-                    [ -e "${region}" ] || continue
-                    if ! grep -qx "${region}" "${TRITON_PYTHON_SHM_SNAPSHOT}"; then
-                        rm -f "${region}" 2>/dev/null || true
-                    fi
-                done
-            fi
+            cleanup_triton_python_shm_since_snapshot
         else
             wait $SERVER_PID
         fi

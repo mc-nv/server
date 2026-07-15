@@ -76,7 +76,9 @@ cp ../../python_models/wrong_model/config.pbtxt ./models/wrong_model/
           sed -i "s/TYPE_FP32/TYPE_UINT32/g" config.pbtxt)
 
 prev_num_pages=`get_shm_pages`
-snapshot_triton_python_shm
+if [ "${TEST_JETSON}" == "1" ]; then
+    snapshot_triton_python_shm
+fi
 
 run_server
 if [ "$SERVER_PID" == "0" ]; then
@@ -120,11 +122,15 @@ cp ../../python_models/init_error/config.pbtxt ./models/init_error/
 
 set +e
 prev_num_pages=`get_shm_pages`
-snapshot_triton_python_shm
+if [ "${TEST_JETSON}" == "1" ]; then
+    snapshot_triton_python_shm
+fi
 run_server_nowait
 
 wait $SERVER_PID
-cleanup_triton_python_shm_since_snapshot
+if [ "${TEST_JETSON}" == "1" ]; then
+    cleanup_triton_python_shm_since_snapshot
+fi
 current_num_pages=`get_shm_pages`
 if [ $current_num_pages -ne $prev_num_pages ]; then
     ls /dev/shm
@@ -152,7 +158,9 @@ if [[ ${TEST_WINDOWS} == 0 ]]; then
     cp ../../python_models/fini_error/config.pbtxt ./models/fini_error/
 
     prev_num_pages=`get_shm_pages`
-    snapshot_triton_python_shm
+    if [ "${TEST_JETSON}" == "1" ]; then
+        snapshot_triton_python_shm
+    fi
     run_server
     if [ "$SERVER_PID" == "0" ]; then
         echo -e "\n***\n*** Failed to start $SERVER\n***"
@@ -191,11 +199,15 @@ SERVER_ARGS="${SERVER_ARGS} --strict-model-config=false"
 
 set +e
 prev_num_pages=`get_shm_pages`
-snapshot_triton_python_shm
+if [ "${TEST_JETSON}" == "1" ]; then
+    snapshot_triton_python_shm
+fi
 run_server_nowait
 
 wait $SERVER_PID
-cleanup_triton_python_shm_since_snapshot
+if [ "${TEST_JETSON}" == "1" ]; then
+    cleanup_triton_python_shm_since_snapshot
+fi
 current_num_pages=`get_shm_pages`
 if [ $current_num_pages -ne $prev_num_pages ]; then
     ls /dev/shm
