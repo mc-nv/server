@@ -396,7 +396,6 @@ function kill_server () {
         # Python backend stub teardown even when tests passed.
         if [ "${TEST_JETSON}" == "1" ]; then
             wait $SERVER_PID || true
-            cleanup_triton_python_shm_since_snapshot
         else
             wait $SERVER_PID
         fi
