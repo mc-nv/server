@@ -79,9 +79,6 @@ cp ../../python_models/wrong_model/config.pbtxt ./models/wrong_model/
           sed -i "s/TYPE_FP32/TYPE_UINT32/g" config.pbtxt)
 
 prev_num_pages=`get_shm_pages`
-if [ "${TEST_JETSON}" == "1" ]; then
-    snapshot_triton_python_shm
-fi
 
 run_server
 if [ "$SERVER_PID" == "0" ]; then
@@ -114,9 +111,6 @@ Shared memory pages before starting triton equals to $prev_num_pages
 and shared memory pages after starting triton equals to $current_num_pages \n***"
     RET=1
 fi
-if [ "${TEST_JETSON}" == "1" ]; then
-    cleanup_triton_python_shm_since_snapshot
-fi
 
 # These models have errors in the initialization and finalization
 # steps and we want to ensure that correct error is being returned
@@ -128,9 +122,6 @@ cp ../../python_models/init_error/config.pbtxt ./models/init_error/
 
 set +e
 prev_num_pages=`get_shm_pages`
-if [ "${TEST_JETSON}" == "1" ]; then
-    snapshot_triton_python_shm
-fi
 run_server_nowait
 
 wait $SERVER_PID
@@ -141,9 +132,6 @@ if [ $current_num_pages -ne $prev_num_pages ]; then
 Shared memory pages before starting triton equals to $prev_num_pages
 and shared memory pages after starting triton equals to $current_num_pages \n***"
     RET=1
-fi
-if [ "${TEST_JETSON}" == "1" ]; then
-    cleanup_triton_python_shm_since_snapshot
 fi
 
 grep "name 'lorem_ipsum' is not defined" $SERVER_LOG
@@ -164,9 +152,6 @@ if [[ ${TEST_WINDOWS} == 0 ]]; then
     cp ../../python_models/fini_error/config.pbtxt ./models/fini_error/
 
     prev_num_pages=`get_shm_pages`
-    if [ "${TEST_JETSON}" == "1" ]; then
-        snapshot_triton_python_shm
-    fi
     run_server
     if [ "$SERVER_PID" == "0" ]; then
         echo -e "\n***\n*** Failed to start $SERVER\n***"
@@ -184,9 +169,6 @@ if [[ ${TEST_WINDOWS} == 0 ]]; then
     Shared memory pages before starting triton equals to $prev_num_pages
     and shared memory pages after starting triton equals to $current_num_pages \n***"
         RET=1
-    fi
-    if [ "${TEST_JETSON}" == "1" ]; then
-        cleanup_triton_python_shm_since_snapshot
     fi
 
     set +e
@@ -208,9 +190,6 @@ SERVER_ARGS="${SERVER_ARGS} --strict-model-config=false"
 
 set +e
 prev_num_pages=`get_shm_pages`
-if [ "${TEST_JETSON}" == "1" ]; then
-    snapshot_triton_python_shm
-fi
 run_server_nowait
 
 wait $SERVER_PID
@@ -222,9 +201,6 @@ Shared memory pages before starting triton equals to $prev_num_pages
 and shared memory pages after starting triton equals to $current_num_pages \n***"
     RET=1
 fi
-if [ "${TEST_JETSON}" == "1" ]; then
-    cleanup_triton_python_shm_since_snapshot
-fi
 
 set +e
 grep "name 'undefined_variable' is not defined" $SERVER_LOG
@@ -235,8 +211,6 @@ if [ $? -ne 0 ]; then
     RET=1
 fi
 set -e
-
-clear_triton_python_shm_snapshot
 
 if [ $RET -eq 1 ]; then
     cat $CLIENT_LOG
