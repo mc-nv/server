@@ -66,14 +66,14 @@ class TritonServerConan(ConanFile):
 
     def requirements(self):
         # gRPC and the packages it is built against, at the versions gRPC
-        # v1.81.1 vendors. force=True makes every other consumer share them --
-        # google-cloud-cpp/2.28.0 asks for grpc/1.54.3, for one. Triton's
-        # grpc/1.81.1 recipe lives on the triton-conan remote, which must come
-        # before conancenter: ConanCenter's pairs it with an abseil it does not
-        # compile against, and with an re2 that conflicts with the pin below.
-        self.requires("grpc/1.81.1", force=True)
-        self.requires("abseil/20250512.1", force=True)
-        self.requires("protobuf/6.33.5", force=True)
+        # v1.81.1 vendors. Triton's grpc and google-cloud-cpp recipes live on
+        # the triton-conan remote, which must come before conancenter:
+        # ConanCenter's grpc/1.81.1 pairs it with an abseil it does not compile
+        # against and an re2 that conflicts with the pin below, and its
+        # google-cloud-cpp asks for grpc/1.54.3.
+        self.requires("grpc/1.81.1")
+        self.requires("abseil/20250512.1")
+        self.requires("protobuf/6.33.5")
         self.requires("re2/20230301")
         self.requires("c-ares/1.34.6")
         self.requires("rapidjson/cci.20230929")
