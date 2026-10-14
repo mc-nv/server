@@ -22,3 +22,5 @@ qa/L0_openai/openai
 tensorrtllm_models
 tensorrtllm_mistral_models/
 custom_tokenizer
+# Written by `conan install` next to conanfile.py.
+/CMakeUserPresets.json
