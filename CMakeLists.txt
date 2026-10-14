@@ -15,9 +15,13 @@ project(tritonserver VERSION ${TRITON_VERSION_NUMERIC} LANGUAGES C CXX)
 # C++ standard is defined once here and inherited by every subdirectory. CACHE is
 # required for -DCMAKE_CXX_STANDARD=<n> to take effect: a plain set() would shadow
 # the command-line value instead of deferring to it.
-set(CMAKE_CXX_STANDARD 17 CACHE STRING
+set(CMAKE_CXX_STANDARD 20 CACHE STRING
     "The minimum C++ standard which features are requested to build this target.")
-set_property(CACHE CMAKE_CXX_STANDARD PROPERTY STRINGS 17 20 23)
+set_property(CACHE CMAKE_CXX_STANDARD PROPERTY STRINGS 20 23)
+# src/ and the common/core/backend subprojects request the standard per target
+# through cxx_std_${TRITON_MIN_CXX_STANDARD}; keep it in step with the above.
+set(TRITON_MIN_CXX_STANDARD ${CMAKE_CXX_STANDARD} CACHE STRING
+    "The minimum C++ standard which features are requested to build this target.")
 set(CMAKE_CXX_STANDARD_REQUIRED ON)
 set(CMAKE_CXX_EXTENSIONS OFF)
 
